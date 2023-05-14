@@ -70,8 +70,9 @@ class Server:
 
             # convert the reader object to list so access row by index
             input = list(reader)
-            
-            # delete the first row which is just the header
+
+            # delete the first row only from reader object not from file
+            # so it donest skew search since it is only a header
             del input[0]
 
             # check if given range is within range of file
