@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-""" a module for the LRUCache class """
+""" a module for the MRUCache class """
 from collections import OrderedDict
 BaseCaching = __import__('base_caching').BaseCaching
 
 
-class LRUCache(BaseCaching):
-    """ a LRU cahce implementation that inherits from BaseCaching """
+class MRUCache(BaseCaching):
+    """ a MRU cahce implementation that inherits from BaseCaching """
 
     # to be used for storing values and use order
     use_dict = {}
 
     def __init__(self):
-        """ initalizaes the LRU cache class """
+        """ initalizaes the MRU cache class """
         super().__init__()
 
     def put(self, key, item):
@@ -22,12 +22,12 @@ class LRUCache(BaseCaching):
             if key or item is None no operation is done
         """
         if key is not None and item is not None:
-            self.LRU(key)
             if len(self.cache_data) >= self.MAX_ITEMS:
                 for k, v in self.use_dict.items():
-                    if v == self.MAX_ITEMS:
+                    if v == 1:
                         self.cache_data.pop(k)
                         print('DISCARD: {}'.format(k))
+            self.MRU(key)
             self.cache_data[key] = item
 
     def get(self, key):
@@ -41,18 +41,18 @@ class LRUCache(BaseCaching):
 
         try:
             item = self.cache_data[key]
-            self.LRU(key)
+            self.MRU(key)
             return item
         except KeyError:
             return None
 
-    def LRU(self, key):
+    def MRU(self, key):
         """ logs the usecase for keys in the use_dict """
 
         if key is None:
             return None
 
-        print(f'use_dict = {self.use_dict}')
+        # print(f'use_dict = {self.use_dict}')
         if key not in self.use_dict.keys():
             if len(self.use_dict) >= self.MAX_ITEMS:
                 for k in self.use_dict.keys():
