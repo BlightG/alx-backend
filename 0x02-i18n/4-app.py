@@ -23,7 +23,6 @@ def get_locale():
     else:
         return app.config['BABEL_DEFAULT_LOCALE']
 
-
 @app.route('/', strict_slashes=False)
 def hello_hbnb():
     """ Prints a Message when / is called """
