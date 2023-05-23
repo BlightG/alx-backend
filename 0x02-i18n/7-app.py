@@ -34,13 +34,13 @@ def get_timezone():
     time = request.args.get('timezone')
     if time is None:
         time = request.args.get('Time-Zone')
-    else:
-        time = app.config['BABEL_DEFAULT_TIMEZONE']
+    elif g.user:
+        g.user.get('timezone')
     
     try:
-        return timezone(time)
+        return timezone(time).zone
     except pytz.exceptions.UnknownTimeZoneError:
-        return timezone(app.config['BABEL_DEFAULT_TIMEZONE'])
+        return app.config['BABEL_DEFAULT_TIMEZONE']
 
 
 def get_user():
