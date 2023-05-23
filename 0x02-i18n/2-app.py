@@ -22,4 +22,4 @@ def get_locale():
 @app.route('/', strict_slashes=False)
 def hello_hbnb():
     """ Prints a Message when / is called """
-    return render_template('0-index.html')
+    return render_template('2-index.html')
