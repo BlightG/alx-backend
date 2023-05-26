@@ -2,18 +2,31 @@
 """ first flask app """
 from flask import Flask, render_template, request, g
 from flask_babel import Babel
+import locale
+import pytz
 from pytz import timezone
+from datetime import datetime
+
 
 app = Flask(__name__)
 babel = Babel(app)
+users = {
+    1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
+    2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
+    3: {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},
+    4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
+}
+
 
 class Config(object):
     """ a class for configaration of babel """
-    LANGUAGES =  ["en", "fr"]
+    LANGUAGES = ["en", "fr"]
     BABEL_DEFAULT_LOCALE = "en"
     BABEL_DEFAULT_TIMEZONE = "UTC"
 
+
 app.config.from_object(Config)
+
 
 @babel.localeselector
 def get_locale():
@@ -28,31 +41,24 @@ def get_locale():
     else:
         return app.config['BABEL_DEFAULT_LOCALE']
 
+
 @babel.timezoneselector
 def get_timezone():
     """ return the best matching timezones """
-    time = request.args.get('timezone')
+    time = request.args.get('timezone', None)
+    if time is None and g.user is not None:
+        time = g.user.get('timezone')
+
     if time is None:
-        time = request.args.get('Time-Zone')
-    elif g.user:
-        g.user.get('timezone')
-    
+        time = app.config['BABEL_DEFAULT_TIMEZONE']
     try:
         return timezone(time).zone
     except pytz.exceptions.UnknownTimeZoneError:
-        return app.config['BABEL_DEFAULT_TIMEZONE']
+        return time
 
 
 def get_user():
     """ gets user from dict """
-
-    users = {
-        1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
-        2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
-        3: {"name": "Spock", "locale": "kg", "timezone": "Vulcan"},
-        4: {"name": "Teletubby", "locale": None, "timezone": "Europe/London"},
-    }
-
     user_id = request.args.get('login_as')
     if user_id is not None:
         user_id = int(user_id)
@@ -65,11 +71,16 @@ def get_user():
 def before_request():
     """ function to be used before all others """
     g.user = get_user()
+    time_now = pytz.utc.localize(datetime.utcnow())
+    time = time_now.astimezone(timezone(get_timezone()))
+    locale.setlocale(locale.LC_TIME, (get_locale(), 'UTF-8'))
+    fmt = "%b %d, %Y %I:%M:%S %p"
+    g.time = time.strftime(fmt)
 
 @app.route('/', strict_slashes=False)
 def hello_hbnb():
     """ Prints a Message when / is called """
-    return render_template('7-index.html')
+    return render_template('index.html')
 
 if __name__ == "__main__":
     """ Main Function """
